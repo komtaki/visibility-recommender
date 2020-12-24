@@ -8,7 +8,7 @@ use Komtaki\VisibilityRecommender\ValueObjects\ConstVisibility;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
-class AddConstVisibilityVisitor extends NodeVisitorAbstract
+final class AddConstVisibilityVisitor extends NodeVisitorAbstract
 {
     /** @var ConstVisibility[] */
     private $constUsePatterns = [];

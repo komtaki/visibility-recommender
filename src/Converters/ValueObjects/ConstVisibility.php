@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Komtaki\VisibilityRecommender\ValueObjects;
 
-class ConstVisibility
+final class ConstVisibility
 {
     /** @var bool */
     private $isPublic = true;

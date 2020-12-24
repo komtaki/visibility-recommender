@@ -10,7 +10,7 @@ use Komtaki\VisibilityRecommender\FileSystem\FileGenerator;
 
 use const PHP_EOL;
 
-class RecommendConstVisibility implements CommandInterface
+final class RecommendConstVisibility implements CommandInterface
 {
     /** @var string[] */
     private $autoloadDir;
