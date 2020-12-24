@@ -1,0 +1,13 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Komtaki\VisibilityRecommender\Commands\RecommendConstVisibility;
+
+$autoloadDir = [__DIR__ . '/../../../authense/service/protected/models/'];
+$dirName = __DIR__ . '/../../../authense/service/protected/modules/lawyer/models/';
+
+(new RecommendConstVisibility($autoloadDir, $dirName))->run();
