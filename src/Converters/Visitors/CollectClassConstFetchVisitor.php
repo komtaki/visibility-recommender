@@ -61,6 +61,13 @@ final class CollectClassConstFetchVisitor extends NodeVisitorAbstract
             }
 
             $className = $this->extendsClassName;
+            if (
+                isset($this->classConstFetchTypes["{$className}::{$constName}"])
+                && $this->classConstFetchTypes["{$className}::{$constName}"]->gettype() === Class_::MODIFIER_PUBLIC
+            ) {
+                return;
+            }
+
             $type = new ClassConstFetchType(Class_::MODIFIER_PROTECTED);
         } else {
             $type = new ClassConstFetchType();
