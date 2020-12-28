@@ -40,7 +40,7 @@
         ],
         "tests": [
             "@cs",
-            "@sa",
+            "@phpstan",
             "@test"
         ],
         "coverage": [
@@ -55,8 +55,10 @@
         "cs-fix": [
             "./vendor/bin/phpcbf src tests"
         ],
-        "sa": [
-            "phpstan analyse -c phpstan.neon",
+        "phpstan": [
+            "phpstan analyse -c phpstan.neon"
+        ],
+        "psalm": [
             "psalm --show-info=true"
         ],
         "metrics": [
@@ -76,7 +78,8 @@
         "pcov": "Generate test coverage report (pcov)",
         "cs": "Check the coding style",
         "cs-fix": "Fix the coding style",
-        "sa": "Run static analysis",
+        "phpstan": "Run PHPStan",
+        "psalm": "Run Psalm",
         "metrics": "Build metrics report",
         "build": "Build project"
     }
