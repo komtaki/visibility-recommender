@@ -6,12 +6,13 @@ namespace Komtaki\VisibilityRecommender\Converters;
 
 use Komtaki\VisibilityRecommender\Converters\Printers\Php7PreservingPrinter;
 use Komtaki\VisibilityRecommender\Converters\Printers\PrinterInterface;
-use Komtaki\VisibilityRecommender\Converters\Visitors\AddConstVisibilityVisitor;
-use Komtaki\VisibilityRecommender\Converters\Visitors\CollectConstUseVisitor;
+use Komtaki\VisibilityRecommender\Converters\ValueObjects\ClassConstFetchType;
+use Komtaki\VisibilityRecommender\Converters\Visitors\AddClassConstVisibilityVisitor;
+use Komtaki\VisibilityRecommender\Converters\Visitors\CollectClassConstFetchVisitor;
 use Komtaki\VisibilityRecommender\FileSystem\FileRecursiveSearcher;
-use Komtaki\VisibilityRecommender\ValueObjects\ConstVisibility;
 use PhpParser\Node;
 use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor\NameResolver;
 
 use function array_merge;
 use function file_get_contents;
@@ -21,17 +22,17 @@ final class AddConstVisibilityConverter implements ConverterInterface
     /** @var PrinterInterface */
     private $printer;
 
-    /** @var ConstVisibility[] */
-    private $constUsePatterns = [];
+    /** @var ClassConstFetchType[] */
+    private $classConstFetchTypes = [];
 
     /**
      * @param string[] $autoloadDir
      */
     public function __construct(array $autoloadDir, ?PrinterInterface $printer = null)
     {
-        $this->loadConstUse($autoloadDir);
-
         $this->printer = $printer ?? new Php7PreservingPrinter();
+
+        $this->loadClassConstFetch($autoloadDir);
     }
 
     /**
@@ -54,8 +55,7 @@ final class AddConstVisibilityConverter implements ConverterInterface
     private function addVisibilityConst(array $stmts): array
     {
         $traverser = new NodeTraverser();
-        $visitor = new AddConstVisibilityVisitor();
-        $visitor->setConstUsePattern($this->constUsePatterns);
+        $visitor = new AddClassConstVisibilityVisitor($this->classConstFetchTypes);
         $traverser->addVisitor($visitor);
 
         return $traverser->traverse($stmts);
@@ -64,7 +64,7 @@ final class AddConstVisibilityConverter implements ConverterInterface
     /**
      * @param string[] $autoloadDirs
      */
-    private function loadConstUse(array $autoloadDirs): void
+    private function loadClassConstFetch(array $autoloadDirs): void
     {
         $fileSearcher = new FileRecursiveSearcher();
         foreach ($autoloadDirs as $autoloadDir) {
@@ -77,13 +77,21 @@ final class AddConstVisibilityConverter implements ConverterInterface
                 $stmts = $this->printer->getAst($code);
 
                 $traverser = new NodeTraverser();
-                $visitor = new CollectConstUseVisitor();
+
+                $nameResolver = new NameResolver(null, [
+                    'preserveOriginalNames' => true,
+                    'replaceNodes' => true,
+                ]);
+                $traverser->addVisitor($nameResolver);
+
+                $visitor = new CollectClassConstFetchVisitor();
                 $traverser->addVisitor($visitor);
+
                 $traverser->traverse($stmts);
 
-                $this->constUsePatterns = array_merge(
-                    $this->constUsePatterns,
-                    $visitor->getConstUseList()
+                $this->classConstFetchTypes = array_merge(
+                    $this->classConstFetchTypes,
+                    $visitor->getClassConstFetchTypes()
                 );
             }
         }
