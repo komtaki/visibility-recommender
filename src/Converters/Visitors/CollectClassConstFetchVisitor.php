@@ -10,17 +10,19 @@ use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Class_;
-use PhpParser\NodeVisitorAbstract;
 
 use function in_array;
 
-final class CollectClassConstFetchVisitor extends NodeVisitorAbstract
+final class CollectClassConstFetchVisitor extends GetClassNameVisitor
 {
     /** @var array<string, array<string, ClassConstFetchType>> */
-    private $classConstFetchTypes = [];
+    private static $classConstFetchTypes = [];
 
     /** @var array<string, array<string, ClassConstFetchType>> */
-    private $protectedClassConstFetchTypes = [];
+    private static $protectedClassConstFetchTypes = [];
+
+    /** @var array<string, array{extends: string, constList:string[]}> */
+    private static $classConstDefinitions = [];
 
     /** @var string[] */
     private $ownClassConstList = [];
@@ -37,13 +39,13 @@ final class CollectClassConstFetchVisitor extends NodeVisitorAbstract
     public function enterNode(Node $node)
     {
         if ($node instanceof Class_) {
-            $this->createOwnClassConst($node);
             if ($node->name instanceof Identifier) {
                 $this->className = $node->name->toString();
-            }
+                if ($node->extends instanceof Name) {
+                    $this->extendsClassName = $node->extends->toString();
+                }
 
-            if ($node->extends instanceof Name) {
-                $this->extendsClassName = $node->extends->toString();
+                $this->createOwnClassConst($node);
             }
 
             return null;
@@ -65,34 +67,33 @@ final class CollectClassConstFetchVisitor extends NodeVisitorAbstract
         $className = $node->class->toString();
         $constName = $node->name->toString();
 
-        if (isset($this->classConstFetchTypes[$className][$constName]) && $this->classConstFetchTypes[$className][$constName]->isPublic()) {
+        if (isset(self::$classConstFetchTypes[$className][$constName]) && self::$classConstFetchTypes[$className][$constName]->isPublic()) {
             return;
         }
 
         if (! $node->class->isSpecialClassName()) {
-            $this->classConstFetchTypes[$className][$constName] = new ClassConstFetchType();
+            self::$classConstFetchTypes[$className][$constName] = new ClassConstFetchType();
 
             return;
         }
 
         if (in_array($constName, $this->ownClassConstList, true)) {
             $privateType = new ClassConstFetchType(Class_::MODIFIER_PRIVATE);
-            $this->classConstFetchTypes[$className][$constName] = $privateType;
+            self::$classConstFetchTypes[$this->getClassName($this->className)][$constName] = $privateType;
 
             return;
         }
 
-        $className = $this->extendsClassName;
         if (
-            isset($this->classConstFetchTypes[$className][$constName])
-            && $this->classConstFetchTypes[$className][$constName]->isPublic()
+            isset(self::$classConstFetchTypes[$this->extendsClassName][$constName])
+            && self::$classConstFetchTypes[$this->extendsClassName][$constName]->isPublic()
         ) {
             return;
         }
 
         $protectedType = new ClassConstFetchType(Class_::MODIFIER_PROTECTED);
-        $this->classConstFetchTypes[$className][$constName] = $protectedType;
-        $this->protectedClassConstFetchTypes[$className][$constName] = $protectedType;
+        self::$classConstFetchTypes[$this->extendsClassName][$constName] = $protectedType;
+        self::$protectedClassConstFetchTypes[$this->extendsClassName][$constName] = $protectedType;
     }
 
     private function createOwnClassConst(Class_ $node): void
@@ -102,38 +103,34 @@ final class CollectClassConstFetchVisitor extends NodeVisitorAbstract
                 $this->ownClassConstList[] = $const->name->toString();
             }
         }
+
+        self::$classConstDefinitions[$this->getClassName($this->className)] = [
+            'extends' => $this->extendsClassName,
+            'constList' => $this->ownClassConstList,
+        ];
     }
 
     /**
      * @return array<string, array{extends: string, constList:string[]}>
      */
-    public function getOwnClassConstList(): array
+    public static function getClassConstDefinitions(): array
     {
-        if (empty($this->className)) {
-            return [];
-        }
-
-        return [
-            $this->className => [
-                'extends' => $this->extendsClassName,
-                'constList' => $this->ownClassConstList,
-            ],
-        ];
+        return self::$classConstDefinitions;
     }
 
     /**
      * @return array<string, array<string, ClassConstFetchType>>
      */
-    public function getProtectedClassConstFetchTypes(): array
+    public static function getProtectedClassConstFetchTypes(): array
     {
-        return $this->protectedClassConstFetchTypes;
+        return self::$protectedClassConstFetchTypes;
     }
 
     /**
      * @return array<string, array<string, ClassConstFetchType>>
      */
-    public function getClassConstFetchTypes(): array
+    public static function getClassConstFetchTypes(): array
     {
-        return $this->classConstFetchTypes;
+        return self::$classConstFetchTypes;
     }
 }

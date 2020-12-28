@@ -11,7 +11,6 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 
 use function array_keys;
-use function array_merge;
 use function file_get_contents;
 use function in_array;
 
@@ -48,29 +47,18 @@ class MultiCollectClassConstFetchVisitor
                     continue;
                 }
 
-                $visitor = $this->collectClassConstFetch($code);
-
-                $this->classConstFetchTypes = array_merge(
-                    $this->classConstFetchTypes,
-                    $visitor->getClassConstFetchTypes()
-                );
-
-                $classConstDefinitions = array_merge(
-                    $classConstDefinitions,
-                    $visitor->getOwnClassConstList()
-                );
-
-                $protectedClassConstFetchTypes = array_merge(
-                    $protectedClassConstFetchTypes,
-                    $visitor->getProtectedClassConstFetchTypes()
-                );
+                $this->collectClassConstFetch($code);
             }
         }
+
+        $this->classConstFetchTypes = CollectClassConstFetchVisitor::getClassConstFetchTypes();
+        $protectedClassConstFetchTypes = CollectClassConstFetchVisitor::getProtectedClassConstFetchTypes();
+        $classConstDefinitions = CollectClassConstFetchVisitor::getClassConstDefinitions();
 
         $this->cleaningProtectedClassConstFetches($classConstDefinitions, $protectedClassConstFetchTypes);
     }
 
-    private function collectClassConstFetch(string $code): CollectClassConstFetchVisitor
+    private function collectClassConstFetch(string $code): void
     {
         $stmts = $this->printer->getAst($code);
 
@@ -86,8 +74,6 @@ class MultiCollectClassConstFetchVisitor
         $traverser->addVisitor($visitor);
 
         $traverser->traverse($stmts);
-
-        return $visitor;
     }
 
     /**
@@ -107,11 +93,11 @@ class MultiCollectClassConstFetchVisitor
                 }
 
                 // 直前の親の親~に定義された定数参照
-                if (empty($classConstDefinitions[$classNameKey])) {
+                $extendsClassName = $classConstDefinitions[$classNameKey]['extends'] ?? '';
+                if (empty($extendsClassName)) {
                     continue;
                 }
 
-                $extendsClassName = $classConstDefinitions[$classNameKey]['extends'];
                 while (true) {
                     $extendsDefinitionConst = $classConstDefinitions[$extendsClassName] ?? [];
                     if (empty($extendsDefinitionConst)) {

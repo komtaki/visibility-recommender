@@ -7,20 +7,14 @@ namespace Komtaki\VisibilityRecommender\Converters\Visitors;
 use Komtaki\VisibilityRecommender\Converters\ValueObjects\ClassConstFetchType;
 use PhpParser\Node;
 use PhpParser\Node\Identifier;
-use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassConst;
-use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\NodeTraverser;
-use PhpParser\NodeVisitorAbstract;
 
-final class AddClassConstVisibilityVisitor extends NodeVisitorAbstract
+final class AddClassConstVisibilityVisitor extends GetClassNameVisitor
 {
     /** @var array<string, array<string, ClassConstFetchType>> */
     private $classConstFetchTypes = [];
-
-    /** @var string */
-    private $nameSpace = '';
 
     /**
      * @param array<string, array<string, ClassConstFetchType>> $classConstFetchTypes
@@ -28,22 +22,6 @@ final class AddClassConstVisibilityVisitor extends NodeVisitorAbstract
     public function __construct(array $classConstFetchTypes)
     {
         $this->classConstFetchTypes = $classConstFetchTypes;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function beforeTraverse(array $nodes)
-    {
-        foreach ($nodes as $node) {
-            if ($node instanceof Namespace_ && $node->name instanceof Name) {
-                $this->nameSpace = $node->name->toString();
-
-                return null;
-            }
-        }
-
-        return null;
     }
 
     /**
@@ -68,7 +46,7 @@ final class AddClassConstVisibilityVisitor extends NodeVisitorAbstract
      */
     private function fixUnNecessaryPublicConst(string $className, array $classConsts): void
     {
-        $className = $this->nameSpace ? "{$this->nameSpace}\\{$className}" : $className;
+        $className = $this->getClassName($className);
 
         foreach ($classConsts as $consts) {
             if (! $consts->isPublic()) {
