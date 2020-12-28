@@ -8,21 +8,16 @@ use Komtaki\VisibilityRecommender\Converters\Printers\Php7PreservingPrinter;
 use Komtaki\VisibilityRecommender\Converters\Printers\PrinterInterface;
 use Komtaki\VisibilityRecommender\Converters\ValueObjects\ClassConstFetchType;
 use Komtaki\VisibilityRecommender\Converters\Visitors\AddClassConstVisibilityVisitor;
-use Komtaki\VisibilityRecommender\Converters\Visitors\CollectClassConstFetchVisitor;
-use Komtaki\VisibilityRecommender\FileSystem\FileRecursiveSearcher;
+use Komtaki\VisibilityRecommender\Converters\Visitors\MultiCollectClassConstFetchVisitor;
 use PhpParser\Node;
 use PhpParser\NodeTraverser;
-use PhpParser\NodeVisitor\NameResolver;
-
-use function array_merge;
-use function file_get_contents;
 
 final class AddConstVisibilityConverter implements ConverterInterface
 {
     /** @var PrinterInterface */
     private $printer;
 
-    /** @var ClassConstFetchType[] */
+    /** @var array<string, array<string, ClassConstFetchType>> */
     private $classConstFetchTypes = [];
 
     /**
@@ -32,7 +27,9 @@ final class AddConstVisibilityConverter implements ConverterInterface
     {
         $this->printer = $printer ?? new Php7PreservingPrinter();
 
-        $this->loadClassConstFetch($autoloadDir);
+        $multiCollectClassConstFetchVisitor = new MultiCollectClassConstFetchVisitor($autoloadDir, $this->printer);
+        $multiCollectClassConstFetchVisitor->loadClassConstFetch();
+        $this->classConstFetchTypes = $multiCollectClassConstFetchVisitor->getClassConstFetchTypes();
     }
 
     /**
@@ -59,41 +56,5 @@ final class AddConstVisibilityConverter implements ConverterInterface
         $traverser->addVisitor($visitor);
 
         return $traverser->traverse($stmts);
-    }
-
-    /**
-     * @param string[] $autoloadDirs
-     */
-    private function loadClassConstFetch(array $autoloadDirs): void
-    {
-        $fileSearcher = new FileRecursiveSearcher();
-        foreach ($autoloadDirs as $autoloadDir) {
-            foreach ($fileSearcher->getFileSystemPath($autoloadDir) as $filePath) {
-                $code = file_get_contents($filePath);
-                if (! $code) {
-                    continue;
-                }
-
-                $stmts = $this->printer->getAst($code);
-
-                $traverser = new NodeTraverser();
-
-                $nameResolver = new NameResolver(null, [
-                    'preserveOriginalNames' => true,
-                    'replaceNodes' => true,
-                ]);
-                $traverser->addVisitor($nameResolver);
-
-                $visitor = new CollectClassConstFetchVisitor();
-                $traverser->addVisitor($visitor);
-
-                $traverser->traverse($stmts);
-
-                $this->classConstFetchTypes = array_merge(
-                    $this->classConstFetchTypes,
-                    $visitor->getClassConstFetchTypes()
-                );
-            }
-        }
     }
 }

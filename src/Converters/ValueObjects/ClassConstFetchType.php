@@ -33,4 +33,9 @@ class ClassConstFetchType
     {
         return $this->type;
     }
+
+    public function isPublic(): bool
+    {
+        return $this->type === Class_::MODIFIER_PUBLIC;
+    }
 }

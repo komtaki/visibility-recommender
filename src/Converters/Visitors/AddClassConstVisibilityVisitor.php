@@ -16,14 +16,14 @@ use PhpParser\NodeVisitorAbstract;
 
 final class AddClassConstVisibilityVisitor extends NodeVisitorAbstract
 {
-    /** @var ClassConstFetchType[] */
+    /** @var array<string, array<string, ClassConstFetchType>> */
     private $classConstFetchTypes = [];
 
     /** @var string */
     private $nameSpace = '';
 
     /**
-     * @param ClassConstFetchType[] $classConstFetchTypes
+     * @param array<string, array<string, ClassConstFetchType>> $classConstFetchTypes
      */
     public function __construct(array $classConstFetchTypes)
     {
@@ -71,13 +71,13 @@ final class AddClassConstVisibilityVisitor extends NodeVisitorAbstract
         $className = $this->nameSpace ? "{$this->nameSpace}\\{$className}" : $className;
 
         foreach ($classConsts as $consts) {
-            if ($consts->flags === Class_::MODIFIER_PROTECTED) {
+            if (! $consts->isPublic()) {
                 continue;
             }
 
-            $constName = "{$className}::" . $consts->consts[0]->name->toString();
+            $constName = $consts->consts[0]->name->toString();
 
-            $fetchTypes = $this->classConstFetchTypes[$constName] ?? new ClassConstFetchType(Class_::MODIFIER_PRIVATE);
+            $fetchTypes = $this->classConstFetchTypes[$className][$constName] ?? new ClassConstFetchType(Class_::MODIFIER_PRIVATE);
             $consts->flags = $fetchTypes->getType();
         }
     }

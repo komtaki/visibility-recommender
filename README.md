@@ -13,9 +13,6 @@ PHPのプログラムを解析して、[PSR-12](https://www.php-fig.org/psr/psr-
 
 付与される修飾子は、`public`, `private`, `protected`です。
 
-継承関係の解決は、直接継承している親クラスしか見ていません。そのため、親クラスが継承しているクラスの定数を見ていた場合、該当のアクセス修飾子は`public`になります。
-
-
 ## Installation
 
     composer install
