@@ -3,7 +3,6 @@
 [![Run tests](https://github.com/komtaki/visibility-recommender/workflows/Run%20tests/badge.svg)](https://github.com/komtaki/visibility-recommender/actions?query=workflow%3A%22Run+tests%22)
 
 PHPのプログラムを解析して、[PSR-12](https://www.php-fig.org/psr/psr-12/)で推奨されているアクセス修飾子を定数を直接修正して提案します。
-付与される修飾子は、`public`, `private`, `protected`です。
 
 >4.3 Properties and Constants
 > Visibility MUST be declared on all properties.
@@ -11,6 +10,11 @@ PHPのプログラムを解析して、[PSR-12](https://www.php-fig.org/psr/psr-
 >Visibility MUST be declared on all constants if your project PHP minimum version supports constant visibilities (PHP 7.1 or later).
 >
 > https://www.php-fig.org/psr/psr-12/#43-properties-and-constants
+
+付与される修飾子は、`public`, `private`, `protected`です。
+
+継承関係の解決は、直接継承している親クラスしか見ていません。そのため、親クラスが継承しているクラスの定数を見ていた場合、該当のアクセス修飾子は`public`になります。
+
 
 ## Installation
 
