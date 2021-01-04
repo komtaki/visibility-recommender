@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Komtaki\VisibilityRecommender\Converters\Visitors;
 
 use Komtaki\VisibilityRecommender\Converters\ValueObjects\ClassConstFetchType;
+use Komtaki\VisibilityRecommender\Converters\ValueObjects\PrivateClassConstFetch;
 use PhpParser\Node;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\Class_;
@@ -55,7 +56,7 @@ final class AddClassConstVisibilityVisitor extends GetClassNameVisitor
 
             $constName = $consts->consts[0]->name->toString();
 
-            $fetchTypes = $this->classConstFetchTypes[$className][$constName] ?? new ClassConstFetchType(Class_::MODIFIER_PRIVATE);
+            $fetchTypes = $this->classConstFetchTypes[$className][$constName] ?? new PrivateClassConstFetch();
             $consts->flags = $fetchTypes->getType();
         }
     }

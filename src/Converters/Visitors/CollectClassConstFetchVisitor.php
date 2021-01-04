@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Komtaki\VisibilityRecommender\Converters\Visitors;
 
 use Komtaki\VisibilityRecommender\Converters\ValueObjects\ClassConstFetchType;
+use Komtaki\VisibilityRecommender\Converters\ValueObjects\PrivateClassConstFetch;
+use Komtaki\VisibilityRecommender\Converters\ValueObjects\ProtectedClassConstFetch;
+use Komtaki\VisibilityRecommender\Converters\ValueObjects\PublicClassConstFetch;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Identifier;
@@ -12,6 +15,7 @@ use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Class_;
 
 use function in_array;
+use function strtolower;
 
 final class CollectClassConstFetchVisitor extends GetClassNameVisitor
 {
@@ -71,31 +75,42 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
             return;
         }
 
-        if (isset(self::$classConstFetchTypes[$className][$constName]) && self::$classConstFetchTypes[$className][$constName]->isPublic()) {
+        // public const pattern
+        if (isset(self::$classConstFetchTypes[$className][$constName]) && self::$classConstFetchTypes[$className][$constName] instanceof PublicClassConstFetch) {
             return;
         }
 
         if (! $node->class->isSpecialClassName()) {
-            self::$classConstFetchTypes[$className][$constName] = new ClassConstFetchType();
+            self::$classConstFetchTypes[$className][$constName] = new PublicClassConstFetch();
 
             return;
         }
 
+        // private const pattern
         if (in_array($constName, $this->ownClassConstList, true)) {
-            $privateType = new ClassConstFetchType(Class_::MODIFIER_PRIVATE);
-            self::$classConstFetchTypes[$this->getClassName($this->className)][$constName] = $privateType;
+            $currentClassName = $this->getClassName($this->className);
+            if (
+                isset(self::$classConstFetchTypes[$currentClassName][$constName]) && (
+                    self::$classConstFetchTypes[$currentClassName][$constName] instanceof PublicClassConstFetch ||
+                    self::$classConstFetchTypes[$currentClassName][$constName] instanceof ProtectedClassConstFetch)
+            ) {
+                return;
+            }
+
+            self::$classConstFetchTypes[$currentClassName][$constName] = new PrivateClassConstFetch();
 
             return;
         }
 
+        // protected const pattern
         if (
             isset(self::$classConstFetchTypes[$this->extendsClassName][$constName])
-            && self::$classConstFetchTypes[$this->extendsClassName][$constName]->isPublic()
+            && self::$classConstFetchTypes[$this->extendsClassName][$constName] instanceof PublicClassConstFetch
         ) {
             return;
         }
 
-        $protectedType = new ClassConstFetchType(Class_::MODIFIER_PROTECTED);
+        $protectedType = new ProtectedClassConstFetch();
         self::$classConstFetchTypes[$this->extendsClassName][$constName] = $protectedType;
         self::$protectedClassConstFetchTypes[$this->extendsClassName][$constName] = $protectedType;
     }
