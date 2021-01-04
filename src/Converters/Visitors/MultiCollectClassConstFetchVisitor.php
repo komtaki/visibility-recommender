@@ -37,6 +37,7 @@ class MultiCollectClassConstFetchVisitor
     public function loadClassConstFetch(): void
     {
         $fileSearcher = new FileRecursiveSearcher();
+        $collectClassConstFetchVisitor = new CollectClassConstFetchVisitor();
 
         foreach ($this->autoloadDirs as $autoloadDir) {
             foreach ($fileSearcher->getFileSystemPath($autoloadDir) as $filePath) {
@@ -45,18 +46,19 @@ class MultiCollectClassConstFetchVisitor
                     continue;
                 }
 
-                $this->collectClassConstFetch($code);
+                $this->collectClassConstFetch($code, $collectClassConstFetchVisitor);
+                $collectClassConstFetchVisitor->resetUniqueClassData();
             }
         }
 
-        $this->classConstFetchTypes = CollectClassConstFetchVisitor::getClassConstFetchTypes();
-        $protectedClassConstFetchTypes = CollectClassConstFetchVisitor::getProtectedClassConstFetchTypes();
-        $classConstDefinitions = CollectClassConstFetchVisitor::getClassConstDefinitions();
+        $this->classConstFetchTypes = $collectClassConstFetchVisitor->getClassConstFetchTypes();
+        $protectedClassConstFetchTypes = $collectClassConstFetchVisitor->getProtectedClassConstFetchTypes();
+        $classConstDefinitions = $collectClassConstFetchVisitor->getClassConstDefinitions();
 
         $this->cleaningProtectedClassConstFetches($classConstDefinitions, $protectedClassConstFetchTypes);
     }
 
-    private function collectClassConstFetch(string $code): void
+    private function collectClassConstFetch(string $code, CollectClassConstFetchVisitor $collectClassConstFetchVisitor): void
     {
         $stmts = $this->printer->getAst($code);
 
@@ -68,8 +70,7 @@ class MultiCollectClassConstFetchVisitor
         ]);
         $traverser->addVisitor($nameResolver);
 
-        $visitor = new CollectClassConstFetchVisitor();
-        $traverser->addVisitor($visitor);
+        $traverser->addVisitor($collectClassConstFetchVisitor);
 
         $traverser->traverse($stmts);
     }
