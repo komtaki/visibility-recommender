@@ -37,8 +37,6 @@ class MultiCollectClassConstFetchVisitor
     public function loadClassConstFetch(): void
     {
         $fileSearcher = new FileRecursiveSearcher();
-        $classConstDefinitions = [];
-        $protectedClassConstFetchTypes = [];
 
         foreach ($this->autoloadDirs as $autoloadDir) {
             foreach ($fileSearcher->getFileSystemPath($autoloadDir) as $filePath) {
