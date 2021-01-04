@@ -13,6 +13,8 @@ PHPのプログラムを解析して、[PSR-12](https://www.php-fig.org/psr/psr-
 
 付与される修飾子は、`public`, `private`, `protected`です。
 
+※親クラスで定義した定数を子クラスで再定義して、上書きしたりしていると、本来`protected`なのに`private`になることがあります。
+
 ## Installation
 
     composer install
