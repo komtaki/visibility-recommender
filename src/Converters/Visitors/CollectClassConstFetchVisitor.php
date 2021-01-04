@@ -67,6 +67,10 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
         $className = $node->class->toString();
         $constName = $node->name->toString();
 
+        if (strtolower($constName) === 'class') {
+            return;
+        }
+
         if (isset(self::$classConstFetchTypes[$className][$constName]) && self::$classConstFetchTypes[$className][$constName]->isPublic()) {
             return;
         }
