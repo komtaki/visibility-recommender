@@ -161,17 +161,18 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
                         break;
                     }
 
-                    if (in_array($constName, $extendsDefinitionConst['constList'], true)) {
-                        if (isset($this->classConstFetchTypes[$extendsClassName][$constName]) && $this->classConstFetchTypes[$extendsClassName][$constName] instanceof PublicClassConstFetch) {
-                            break;
-                        }
+                    if (! in_array($constName, $extendsDefinitionConst['constList'], true)) {
+                        $extendsClassName = $this->classConstDefinitions[$extendsClassName]['extends'];
+                        continue;
+                    }
 
-                        $this->classConstFetchTypes[$extendsClassName][$constName] = $this->classConstFetchTypes[$classNameKey][$constName];
-                        unset($this->classConstFetchTypes[$classNameKey][$constName]);
+                    if (isset($this->classConstFetchTypes[$extendsClassName][$constName]) && $this->classConstFetchTypes[$extendsClassName][$constName] instanceof PublicClassConstFetch) {
                         break;
                     }
 
-                    $extendsClassName = $this->classConstDefinitions[$extendsClassName]['extends'];
+                    $this->classConstFetchTypes[$extendsClassName][$constName] = $this->classConstFetchTypes[$classNameKey][$constName];
+                    unset($this->classConstFetchTypes[$classNameKey][$constName]);
+                    break;
                 }
             }
         }
