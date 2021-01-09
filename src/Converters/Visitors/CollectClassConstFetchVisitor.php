@@ -38,6 +38,8 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
     /** @var string */
     private $className = '';
 
+    private const BUILD_IN_CONST_NAME = 'class';
+
     /**
      * @inheritDoc
      */
@@ -90,12 +92,13 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
             return;
         }
 
-        $className = $node->class->toString();
         $constName = $node->name->toString();
 
-        if (strtolower($constName) === 'class') {
+        if (strtolower($constName) === self::BUILD_IN_CONST_NAME) {
             return;
         }
+
+        $className = $node->class->toString();
 
         // public const pattern
         if (isset($this->classConstFetchTypes[$className][$constName]) && $this->classConstFetchTypes[$className][$constName] instanceof PublicClassConstFetch) {
@@ -111,11 +114,7 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
         // private const pattern
         if (in_array($constName, $this->ownClassConstList, true)) {
             $currentClassName = $this->getClassName($this->className);
-            if (
-                isset($this->classConstFetchTypes[$currentClassName][$constName]) && (
-                    $this->classConstFetchTypes[$currentClassName][$constName] instanceof PublicClassConstFetch ||
-                    $this->classConstFetchTypes[$currentClassName][$constName] instanceof ProtectedClassConstFetch)
-            ) {
+            if (isset($this->classConstFetchTypes[$currentClassName][$constName])) {
                 return;
             }
 
