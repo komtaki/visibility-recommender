@@ -144,7 +144,7 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
     /**
      * protectedのものを、定義と突合して孫継承のケースなどで付け替える
      */
-    public function cleaningProtectedClassConstFetches(): void
+    public function fixProtectedClassConstFetchesIfNotOwnConst(): void
     {
         foreach (array_keys($this->protectedClassConstFetchTypes) as $classNameKey) {
             foreach (array_keys($this->protectedClassConstFetchTypes[$classNameKey]) as $constName) {
