@@ -2,7 +2,7 @@
 
 class NestExtendsMailCommand extends ExtendsMailCommand
 {
-    const HUGA ='huga';
+    protected const HUGA ='huga';
 
     public function actionIndex()
     {

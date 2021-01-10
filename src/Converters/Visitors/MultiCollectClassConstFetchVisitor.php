@@ -50,6 +50,7 @@ class MultiCollectClassConstFetchVisitor
         }
 
         $this->collectClassConstFetchVisitor->cleaningProtectedClassConstFetches();
+        $this->collectClassConstFetchVisitor->fixProtectedClassConstFetchesIfSameConstName();
     }
 
     private function collectClassConstFetch(string $code): void
@@ -67,8 +68,6 @@ class MultiCollectClassConstFetchVisitor
         $traverser->addVisitor($this->collectClassConstFetchVisitor);
 
         $traverser->traverse($stmts);
-
-        $this->collectClassConstFetchVisitor->resetUniqueClassData();
     }
 
     /**

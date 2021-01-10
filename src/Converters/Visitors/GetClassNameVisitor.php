@@ -29,6 +29,16 @@ class GetClassNameVisitor extends NodeVisitorAbstract
         return null;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function afterTraverse(array $nodes)
+    {
+        $this->nameSpace = '';
+
+        return parent::afterTraverse($nodes);
+    }
+
     protected function getClassName(string $className): string
     {
         return $this->nameSpace ? "{$this->nameSpace}\\{$className}" : $className;

@@ -79,11 +79,16 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
         ];
     }
 
-    public function resetUniqueClassData(): void
+    /**
+     * @inheritDoc
+     */
+    public function afterTraverse(array $nodes)
     {
         $this->className = '';
         $this->extendsClassName = '';
         $this->ownClassConstList = [];
+
+        return parent::afterTraverse($nodes);
     }
 
     private function addClassConstFetchTypes(ClassConstFetch $node): void
@@ -172,6 +177,47 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
 
                     $this->classConstFetchTypes[$extendsClassName][$constName] = $this->classConstFetchTypes[$classNameKey][$constName];
                     unset($this->classConstFetchTypes[$classNameKey][$constName]);
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * 使用されていないように見えるクラス定数で、同名の定数が親にある場合は、protectedにする
+     */
+    public function fixProtectedClassConstFetchesIfSameConstName(): void
+    {
+        foreach (array_keys($this->classConstDefinitions) as $classNameKey) {
+            if (empty($this->classConstDefinitions[$classNameKey]['constList'])) {
+                continue;
+            }
+
+            foreach ($this->classConstDefinitions[$classNameKey]['constList'] as $constName) {
+                $definitionConst = $this->classConstFetchTypes[$classNameKey][$constName] ?? null;
+
+                if ($definitionConst instanceof PublicClassConstFetch || $definitionConst instanceof ProtectedClassConstFetch) {
+                    continue;
+                }
+
+                $extendsClassName = $this->classConstDefinitions[$classNameKey]['extends'] ?? [];
+
+                if (empty($extendsClassName)) {
+                    continue;
+                }
+
+                while (true) {
+                    $extendsDefinitionConst = $this->classConstDefinitions[$extendsClassName] ?? [];
+                    if (empty($extendsDefinitionConst)) {
+                        break;
+                    }
+
+                    if (! in_array($constName, $extendsDefinitionConst['constList'], true)) {
+                        $extendsClassName = $this->classConstDefinitions[$extendsClassName]['extends'];
+                        continue;
+                    }
+
+                    $this->classConstFetchTypes[$classNameKey][$constName] = new ProtectedClassConstFetch();
                     break;
                 }
             }

@@ -19,9 +19,13 @@ class RecommendConstVisibilityTest extends TestCase
 
     private const FIXME_MAIL_COMMAND_FILE_PATH = __DIR__ . '/../Fake/FixMe/MailCommand.php';
 
+    private const FIXME_NEST_EXTENDS_MAIL_COMMAND_FILE_PATH = __DIR__ . '/../Fake/FixMe/NestExtendsMailCommand.php';
+
     private const FIXME_MAIL_FILE_PATH = __DIR__ . '/../Fake/FixMe/Mail.php';
 
     private const RESULT_MAIL_COMMAND_FILE_PATH = __DIR__ . '/../Fake/Result/MailCommand.php';
+
+    private const RESULT_NEST_EXTENDS_MAIL_COMMAND_FILE_PATH = __DIR__ . '/../Fake/Result/NestExtendsMailCommand.php';
 
     private const RESULT_MAIL_FILE_PATH = __DIR__ . '/../Fake/Result/Mail.php';
 
@@ -58,7 +62,7 @@ class RecommendConstVisibilityTest extends TestCase
     /**
      * @test
      */
-    public function 定数が継承先でのみ使われている時、protectedの定数が定義される(): void
+    public function 定数が継承先での使われている時、protectedの定数が定義される(): void
     {
         $actual = (new AddConstVisibilityConverter([self::FIXME_MAIL_DIR_PATH]))->convert(
             self::FIXME_MAIL_COMMAND_FILE_PATH,
@@ -66,6 +70,21 @@ class RecommendConstVisibilityTest extends TestCase
         );
 
         $expect = $this->getFileContent(self::RESULT_MAIL_COMMAND_FILE_PATH);
+
+        $this->assertSame($expect, $actual);
+    }
+
+        /**
+         * @test
+         */
+    public function 定数が継承先でも同じ名前の定数がある時、protectedの定数が定義される(): void
+    {
+        $actual = (new AddConstVisibilityConverter([self::FIXME_MAIL_DIR_PATH]))->convert(
+            self::FIXME_NEST_EXTENDS_MAIL_COMMAND_FILE_PATH,
+            $this->getFileContent(self::FIXME_NEST_EXTENDS_MAIL_COMMAND_FILE_PATH)
+        );
+
+        $expect = $this->getFileContent(self::RESULT_NEST_EXTENDS_MAIL_COMMAND_FILE_PATH);
 
         $this->assertSame($expect, $actual);
     }
