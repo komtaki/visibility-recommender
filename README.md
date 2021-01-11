@@ -15,7 +15,7 @@ The recommended access modifiers are `public`, `private` and `protected`.
 
 ## Roughly pattern
 
-Of course, I don't know where the constant is referenced in the string concatenation.
+Of course, we don't know if the constant reference is constructed by string concatenation.
 
 ### public
 
