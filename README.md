@@ -2,7 +2,7 @@
 
 [![Run tests](https://github.com/komtaki/visibility-recommender/workflows/Run%20tests/badge.svg)](https://github.com/komtaki/visibility-recommender/actions?query=workflow%3A%22Run+tests%22)
 
-PHPのプログラムを解析して、[PSR-12](https://www.php-fig.org/psr/psr-12/)で推奨されているアクセス修飾子を定数を直接修正して提案します。
+Analyze of PHP file, it will suggest the recommended visibility on [PSR-12](https://www.php-fig.org/psr/psr-12/) by modifying the constants directly.
 
 >4.3 Properties and Constants
 > Visibility MUST be declared on all properties.
@@ -11,11 +11,30 @@ PHPのプログラムを解析して、[PSR-12](https://www.php-fig.org/psr/psr-
 >
 > https://www.php-fig.org/psr/psr-12/#43-properties-and-constants
 
-付与される修飾子は、`public`, `private`, `protected`です。
+The recommended access modifiers are `public`, `private` and `protected`.
+
+## Roughly pattern
+
+Of course, I don't know where the constant is referenced in the string concatenation.
+
+### public
+
+- Constants are fetched by the unique class name other than `self`, `parents`, and `static`.
+
+### protected
+
+- Constants are fetched by `self`, `parents` and `static` from inherit classes.
+- Constants with the same name are declared in parent and  children classes in the inherit relationship.
+
+### private
+
+- Constants that do not fit into any of the above patterns. Following example.
+  - Constants declared in own class and are fetched only in own class by `self`, `static`.
+  - Constants are seemed to not used from anywhere.
 
 ## Installation
 
-    composer install
+    composer install --no-dev
 
 ## Sample
 
@@ -28,13 +47,13 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use Komtaki\VisibilityRecommender\Commands\RecommendConstVisibility;
 
-// 修正したいファイルが使用されている可能性のあるディレクトリ or ファイル名
+// The directory or file name where the file you want to modify may be used.
 $autoloadDir = [__DIR__ . '/../tests/Fake/FixMe'];
 
-// 修正したいファイル or 修正したファイルのあるディレクトリ
+// The directory or file name that you want to modify.
 $dirName = __DIR__ . '/../tests/Fake/FixMe';
 
-// 変換
+// Convert
 (new RecommendConstVisibility($autoloadDir, $dirName))->run();
 ```
 
