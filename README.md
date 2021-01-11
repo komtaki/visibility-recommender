@@ -19,11 +19,11 @@ Of course, we don't know if the constant reference is constructed by string conc
 
 ### public
 
-- Constants are fetched by the unique class name other than `self`, `parents`, and `static`.
+- Constants are fetched by the unique class name other than `self`, `parent`, and `static`.
 
 ### protected
 
-- Constants are fetched by `self`, `parents` and `static` from inherit classes.
+- Constants are fetched by `self`, `parent` and `static` from inherit classes.
 - Constants with the same name are declared in parent and  children classes in the inherit relationship.
 
 ### private
