@@ -15,7 +15,7 @@ The recommended access modifiers are `public`, `private` and `protected`.
 
 ## Roughly pattern
 
-Of course, we don't know if the constant reference is constructed by string concatenation.
+Of course, we don't know if the constant reference is constructed by string concatenation using [eval](https://www.php.net/manual/ja/function.eval.php).
 
 ### public
 
