@@ -217,6 +217,7 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
                         continue;
                     }
 
+                    $this->classConstFetchTypes[$extendsClassName][$constName] = new ProtectedClassConstFetch();
                     $this->classConstFetchTypes[$classNameKey][$constName] = new ProtectedClassConstFetch();
                     break;
                 }
