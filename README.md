@@ -24,12 +24,13 @@ Of course, we don't know if the constant reference is constructed by string conc
 ### protected
 
 - Constants are fetched by `self`, `parent` and `static` from inherit classes.
+- Constants are fetched by `static` from own classes.
 - Constants with the same name are declared in parent and  children classes in the inherit relationship.
 
 ### private
 
 - Constants that do not fit into any of the above patterns. Following example.
-  - Constants declared in own class and are fetched only in own class by `self`, `static`.
+  - Constants declared in own class and are fetched only in own class by `self`.
   - Constants are seemed to not used from anywhere.
 
 ## Installation
