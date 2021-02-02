@@ -40,6 +40,8 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
 
     private const BUILD_IN_CONST_NAME = 'class';
 
+    private const SPECIAL_CLASS_NAME_STATIC = 'static';
+
     /**
      * @inheritDoc
      */
@@ -116,10 +118,17 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
             return;
         }
 
-        // private const pattern
+        // own const pattern
         if (in_array($constName, $this->ownClassConstList, true)) {
             $currentClassName = $this->getClassName($this->className);
             if (isset($this->classConstFetchTypes[$currentClassName][$constName])) {
+                return;
+            }
+
+            if (strtolower($node->class->getFirst()) === self::SPECIAL_CLASS_NAME_STATIC) {
+                // It is a constant of its own class and has dependency resolution.
+                $this->classConstFetchTypes[$currentClassName][$constName] = new ProtectedClassConstFetch();
+
                 return;
             }
 
