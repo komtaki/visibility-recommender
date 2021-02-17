@@ -49,7 +49,7 @@ class MultiCollectClassConstFetchVisitor
             }
         }
 
-        $this->collectClassConstFetchVisitor->fixProtectedClassConstFetchesIfNotOwnConst();
+        $this->collectClassConstFetchVisitor->resolveInheritRelationship();
         $this->collectClassConstFetchVisitor->fixProtectedClassConstFetchesIfSameConstName();
     }
 

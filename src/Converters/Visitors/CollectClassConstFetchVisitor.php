@@ -15,6 +15,7 @@ use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Class_;
 
 use function array_keys;
+use function array_merge;
 use function in_array;
 use function strtolower;
 
@@ -23,8 +24,11 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
     /** @var array<string, array<string, ClassConstFetchType>> */
     private $classConstFetchTypes = [];
 
-    /** @var array<string, array<string, ClassConstFetchType>> */
+    /** @var array<string, array<string, ProtectedClassConstFetch>> */
     private $protectedClassConstFetchTypes = [];
+
+    /** @var array<string, array<string, PublicClassConstFetch>> */
+    private $publicClassConstFetchTypes = [];
 
     /** @var array<string, array{extends: string, constList:string[]}> */
     private $classConstDefinitions = [];
@@ -113,7 +117,9 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
         }
 
         if (! $node->class->isSpecialClassName()) {
-            $this->classConstFetchTypes[$className][$constName] = new PublicClassConstFetch();
+            $publicConst = new PublicClassConstFetch();
+            $this->classConstFetchTypes[$className][$constName] = $publicConst;
+            $this->publicClassConstFetchTypes[$className][$constName] = $publicConst;
 
             return;
         }
@@ -145,18 +151,19 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
             return;
         }
 
-        $protectedType = new ProtectedClassConstFetch();
-        $this->classConstFetchTypes[$this->extendsClassName][$constName] = $protectedType;
-        $this->protectedClassConstFetchTypes[$this->extendsClassName][$constName] = $protectedType;
+        $protectedConst = new ProtectedClassConstFetch();
+        $this->classConstFetchTypes[$this->extendsClassName][$constName] = $protectedConst;
+        $this->protectedClassConstFetchTypes[$this->extendsClassName][$constName] = $protectedConst;
     }
 
     /**
-     * protectedのものを、定義と突合して孫継承のケースなどで付け替える
+     * protectedやpublicのものを、定義と突合して孫継承のケースなどで付け替える
      */
-    public function fixProtectedClassConstFetchesIfNotOwnConst(): void
+    public function resolveInheritRelationship(): void
     {
-        foreach (array_keys($this->protectedClassConstFetchTypes) as $classNameKey) {
-            foreach (array_keys($this->protectedClassConstFetchTypes[$classNameKey]) as $constName) {
+        $needResolveInheritRelationConst = array_merge($this->protectedClassConstFetchTypes, $this->publicClassConstFetchTypes);
+        foreach (array_keys($needResolveInheritRelationConst) as $classNameKey) {
+            foreach (array_keys($needResolveInheritRelationConst[$classNameKey]) as $constName) {
                 $definitionConst = $this->classConstDefinitions[$classNameKey]['constList'] ?? [];
                 // 直前の親に定義された定数参照
                 if (in_array($constName, $definitionConst, true)) {
