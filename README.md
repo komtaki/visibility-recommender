@@ -74,79 +74,111 @@ $dirName = __DIR__ . '/../tests/Fake/FixMe';
 ### After
 
 ```diff
- class ExtendsMailCommand extends MailCommand
- {
--    const HOGE ='hoge';
-+    private const HOGE ='hoge';
-
-     public function actionIndex()
-     {
-
  class Mail
  {
-     // 状態
+    // not used
 -    const STATUS_YET = 0;
--    const STATUS_PROCESS = 1;
--    const STATUS_DONE = 2;
--    const STATUS_CANCEL = 99;
 +    private const STATUS_YET = 0;
+    // used by command class
+-    const STATUS_PROCESS = 1;
 +    public const STATUS_PROCESS = 1;
+    // not used
+-    public const STATUS_DONE = 2;
 +    private const STATUS_DONE = 2;
-+    private const STATUS_CANCEL = 99;
+    // used by view
+-    const STATUS_CANCEL = 99;
++    public const STATUS_CANCEL = 99;
  }
 
  class MailCommand
  {
--    const SLEEP_SPAN = 200;
-+    protected const SLEEP_SPAN = 200;
+-    const PROTECTED_USE_BY_SELF = true;
++    protected const PROTECTED_USE_BY_SELF = true;
 
-     public function actionIndex()
-     {
+-    const PROTECTED_USE_BY_CHILD = 200;
++    protected const PROTECTED_USE_BY_CHILD = 200;
+
+-    const PROTECTED_USE_BY_GRAND_CHILD = true;
++    protected const PROTECTED_USE_BY_GRAND_CHILD = true;
+
+ class ExtendsMailCommand extends MailCommand
+ {
+-    const PROTECTED_OVERRIDE = false;
++    protected const PROTECTED_OVERRIDE = false;
+
+class NestExtendsMailCommand extends ExtendsMailCommand
+{
+-    const PROTECTED_OVERRIDE =true;
++    protected const PROTECTED_OVERRIDE =true;
 
 ```
 
 ### Target file before execution
 
 ```php
-class ExtendsMailCommand extends MailCommand
-{
-    const HOGE ='hoge';
-
-    public function actionIndex()
-    {
-        return self::SLEEP_SPAN;
-    }
-}
-
-```
-
-```php
-
 declare(strict_types=1);
 
-class BatchMail
+class Mail
 {
-    // 状態
+    // not used
     const STATUS_YET = 0;
+    // used by command class
     const STATUS_PROCESS = 1;
-    const STATUS_DONE = 2;
+    // not used
+    public const STATUS_DONE = 2;
+    // used by view
     const STATUS_CANCEL = 99;
 }
 
 ```
 
 ```php
-
 class MailCommand
 {
-    const SLEEP_SPAN = 200;
+    const PROTECTED_USE_BY_SELF = true;
 
-    public function actionIndex()
+    const PROTECTED_USE_BY_CHILD = 200;
+
+    const PROTECTED_USE_BY_GRAND_CHILD = true;
+
+    public function run()
     {
-        return Mail::STATUS_PROCESS;
+        echo Mail::STATUS_PROCESS;
+    }
+
+    public function getStatus()
+    {
+        return static::PROTECTED_USE_BY_SELF;
     }
 }
+```
 
+```php
+class ExtendsMailCommand extends MailCommand
+{
+    const PROTECTED_OVERRIDE = false;
+
+    public function run()
+    {
+        return self::PROTECTED_USE_BY_CHILD;
+    }
+}
+```
+
+```php
+class NestExtendsMailCommand extends ExtendsMailCommand
+{
+    const PROTECTED_OVERRIDE =true;
+
+    public function run()
+    {
+        return self::PROTECTED_USE_BY_GRAND_CHILD;
+    }
+}
+```
+
+```php
+<p><?php echo Mail::STATUS_CANCEL; ?></p>
 ```
 
 ## Available Commands for development
