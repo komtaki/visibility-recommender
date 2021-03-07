@@ -13,6 +13,17 @@ Analyze of PHP file, it will suggest the recommended visibility on [PSR-12](http
 
 The recommended access modifiers are `public`, `private` and `protected`.
 
+# Feature
+
+- Three kinds of `private, protected, private` can be given to public object constants automatically.
+- Only minimal changes are required, and all line breaks and spaces are preserved.
+- Supported files
+    - Mixed classes with and without namespaces.
+    - A mixture of constants with and without access modifiers.
+    - Plain view files.
+- Not supported
+    - Functions that can recover constants by string concatenation, such as `eval()` and `constant()`.
+
 ## Roughly pattern
 
 Of course, we don't know if the constant reference is constructed by string concatenation using [eval](https://www.php.net/manual/ja/function.eval.php).
