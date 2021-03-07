@@ -115,6 +115,18 @@ class NestExtendsMailCommand extends ExtendsMailCommand
 
 ### Target file before execution
 
+
+```
+./tests/Fake/FixMe/
+├── Mail.php
+├── commands
+│   ├── ExtendsMailCommand.php
+│   ├── MailCommand.php
+│   └── NestExtendsMailCommand.php
+└── views
+    └── index.php
+```
+
 ```php
 declare(strict_types=1);
 
