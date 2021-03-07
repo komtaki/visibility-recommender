@@ -42,7 +42,7 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
     /** @var string */
     private $className = '';
 
-    private const BUILD_IN_CONST_NAME = 'class';
+    private const BUILD_IN_NAME = 'class';
 
     private const SPECIAL_CLASS_NAME_STATIC = 'static';
 
@@ -105,7 +105,7 @@ final class CollectClassConstFetchVisitor extends GetClassNameVisitor
 
         $constName = $node->name->toString();
 
-        if (strtolower($constName) === self::BUILD_IN_CONST_NAME) {
+        if (strtolower($constName) === self::BUILD_IN_NAME) {
             return;
         }
 
