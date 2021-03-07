@@ -2,7 +2,6 @@
 
 class ExtendsMailCommand extends MailCommand
 {
-    const PRIVATE_NO_USED = false;
     const PROTECTED_OVERRIDE = false;
 
     public function run()
