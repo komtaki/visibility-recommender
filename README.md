@@ -15,7 +15,7 @@ The recommended access modifiers are `public`, `private` and `protected`.
 
 # Feature
 
-- Three kinds of `private, protected, private` can be given to public object constants automatically.
+- Three kinds of `public, protected, private` can be given to public object constants automatically.
 - Only minimal changes are required, and all line breaks and spaces are preserved.
 - Supported files
     - Mixed classes with and without namespaces.
