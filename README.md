@@ -46,7 +46,7 @@ Of course, we don't know if the constant reference is constructed by string conc
 
 ## Installation
 
-    composer install --no-dev
+    composer require komtaki/visibility-recommender
 
 ## Sample
 
