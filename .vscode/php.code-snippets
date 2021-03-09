@@ -1,0 +1,50 @@
+{
+	"php_class": {
+		"prefix": "php_class",
+		"body": [
+			"<?php",
+			"",
+			"declare(strict_types=1);",
+			"",
+			"namespace Komtaki\\\\${TM_DIRECTORY/.*src\\/(([^\\/]*)(\\/)?)|(\\/)([^\\/]*)/$2${3:+\\\\}${5:+\\\\}$5/g};",
+			"",
+			"class $TM_FILENAME_BASE",
+			"{",
+			"}",
+			""
+		],
+		"description": "Insert php class template."
+	},
+	"php_trait": {
+		"prefix": "php_trait",
+		"body": [
+			"<?php",
+			"",
+			"declare(strict_types=1);",
+			"",
+			"namespace Komtaki\\\\${TM_DIRECTORY/.*src\\/(([^\\/]*)(\\/)?)|(\\/)([^\\/]*)/$2${3:+\\\\}${5:+\\\\}$5/g};",
+			"",
+			"trait $TM_FILENAME_BASE",
+			"{",
+			"}",
+			""
+		],
+		"description": "Insert php trait template."
+	},
+	"php_interface": {
+		"prefix": "php_interface",
+		"body": [
+			"<?php",
+			"",
+			"declare(strict_types=1);",
+			"",
+			"namespace Komtaki\\\\${TM_DIRECTORY/.*src\\/(([^\\/]*)(\\/)?)|(\\/)([^\\/]*)/$2${3:+\\\\}${5:+\\\\}$5/g};",
+			"",
+			"interface $TM_FILENAME_BASE",
+			"{",
+			"}",
+			""
+		],
+		"description": "Insert php interface template."
+	},
+}
