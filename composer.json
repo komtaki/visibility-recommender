@@ -1,6 +1,8 @@
 {
     "name": "komtaki/visibility-recommender",
-    "description": "",
+    "description": "The tool is refactoring object constant visibility.",
+    "homepage": "https://github.com/komtaki/visibility-recommender",
+    "type": "library",
     "license": "MIT",
     "authors": [
         {
