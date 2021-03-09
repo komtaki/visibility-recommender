@@ -60,13 +60,13 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use Komtaki\VisibilityRecommender\Commands\RecommendConstVisibility;
 
 // The directory or file name where the file you want to modify may be used.
-$autoloadDir = [__DIR__ . '/../tests/Fake/FixMe'];
+$autoloadDirs = [__DIR__ . '/../tests/Fake/FixMe'];
 
 // The directory or file name that you want to modify.
-$dirName = __DIR__ . '/../tests/Fake/FixMe';
+$targetDir = __DIR__ . '/../tests/Fake/FixMe';
 
 // Convert
-(new RecommendConstVisibility($autoloadDir, $dirName))->run();
+(new RecommendConstVisibility($autoloadDirs, $targetDir))->run();
 ```
 
 [./bin/command](./bin/command)
