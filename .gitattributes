@@ -1,0 +1,13 @@
+.gitattributes   export-ignore
+.github/         export-ignore
+.gitignore       export-ignore
+.scrutinizer.yml export-ignore
+.vscode/         export-ignore
+bin/             export-ignore
+codecov.yml      export-ignore
+phpcs.xml*       export-ignore
+phpmd.xml        export-ignore
+phpstan.neon     export-ignore
+phpunit.xml.dist export-ignore
+psalm.xml        export-ignore
+tests/           export-ignore
