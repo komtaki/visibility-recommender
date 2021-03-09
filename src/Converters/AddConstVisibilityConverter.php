@@ -21,13 +21,13 @@ final class AddConstVisibilityConverter implements ConverterInterface
     private $classConstFetchTypes = [];
 
     /**
-     * @param string[] $autoloadDir
+     * @param string[] $autoloadDirs
      */
-    public function __construct(array $autoloadDir, ?PrinterInterface $printer = null)
+    public function __construct(array $autoloadDirs, ?PrinterInterface $printer = null)
     {
         $this->printer = $printer ?? new Php7PreservingPrinter();
 
-        $multiCollectClassConstFetchVisitor = new MultiCollectClassConstFetchVisitor($autoloadDir, $this->printer);
+        $multiCollectClassConstFetchVisitor = new MultiCollectClassConstFetchVisitor($autoloadDirs, $this->printer);
         $multiCollectClassConstFetchVisitor->loadClassConstFetch();
         $this->classConstFetchTypes = $multiCollectClassConstFetchVisitor->getClassConstFetchTypes();
     }

@@ -13,29 +13,29 @@ use const PHP_EOL;
 final class RemoveUnusedConst implements CommandInterface
 {
     /** @var string[] */
-    private $autoloadDir;
+    private $autoloadDirs;
 
     /** @var string */
-    private $dirName;
+    private $targetDir;
 
     /**
-     * @param string[] $autoloadDir
+     * @param string[] $autoloadDirs
      */
-    public function __construct(array $autoloadDir, string $dirName)
+    public function __construct(array $autoloadDirs, string $targetDir)
     {
-        $this->autoloadDir = $autoloadDir;
-        $this->dirName = $dirName;
+        $this->autoloadDirs = $autoloadDirs;
+        $this->targetDir = $targetDir;
     }
 
     public function run(): void
     {
         $converter = new RemoveUnusedConstConverter(
-            $this->autoloadDir
+            $this->autoloadDirs
         );
 
         try {
             $fileGenerator = new FileGenerator($converter);
-            $fileGenerator->generate($this->dirName);
+            $fileGenerator->generate($this->targetDir);
         } catch (RuntimeException $e) {
             echo $e->getMessage() . PHP_EOL;
             exit(1);

@@ -8,10 +8,10 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use Komtaki\VisibilityRecommender\Commands\RecommendConstVisibility;
 
 // 修正したいファイルが使用されている可能性のあるディレクトリ or ファイル名
-$autoloadDir = [__DIR__ . '/../tests/Fake/FixMe'];
+$autoloadDirs = [__DIR__ . '/../tests/Fake/FixMe'];
 
 // 修正したいファイル or 修正したファイルのあるディレクトリ
-$dirName = __DIR__ . '/../tests/Fake/FixMe';
+$targetDir = __DIR__ . '/../tests/Fake/FixMe';
 
 // 変換
-(new RecommendConstVisibility($autoloadDir, $dirName))->run();
+(new RecommendConstVisibility($autoloadDirs, $targetDir))->run();
